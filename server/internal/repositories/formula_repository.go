@@ -13,12 +13,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type FormulaRepositoryInterface interface {
+type FormulaRepository interface {
 	CreateFormula(ctx context.Context, formula *models.Formula) error
-	GetFormulaByID(ctx context.Context, id uuid.UUID) (*models.Formula, error)
-	GetAllFormulas(ctx context.Context) ([]models.Formula, error)
+	GetFormula(ctx context.Context, id uuid.UUID) (*models.Formula, error)
 	UpdateFormula(ctx context.Context, formula *models.Formula) error
 	DeleteFormula(ctx context.Context, id uuid.UUID) error
+	GetAllFormulas(ctx context.Context) ([]models.Formula, error)
 	SearchFormulasByTitle(ctx context.Context, title string) ([]models.Formula, error)
 }
 
@@ -26,7 +26,7 @@ type formulaRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewFormulaRepository(pool *pgxpool.Pool) FormulaRepositoryInterface {
+func NewFormulaRepository(pool *pgxpool.Pool) FormulaRepository {
 	return &formulaRepository{pool: pool}
 }
 
@@ -51,7 +51,7 @@ func (r *formulaRepository) CreateFormula(ctx context.Context, formula *models.F
 	return nil
 }
 
-func (r *formulaRepository) GetFormulaByID(ctx context.Context, id uuid.UUID) (*models.Formula, error) {
+func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*models.Formula, error) {
 	query := `
 		SELECT id, title, content, description, created_at, updated_at
 		FROM formulas
@@ -76,23 +76,6 @@ func (r *formulaRepository) GetFormulaByID(ctx context.Context, id uuid.UUID) (*
 		return nil, fmt.Errorf("could not get formula by ID: %w", err)
 	}
 	return &formula, nil
-}
-
-func (r *formulaRepository) GetAllFormulas(ctx context.Context) ([]models.Formula, error) {
-	query := `
-		SELECT id, title, content, description, created_at, updated_at
-		FROM formulas
-		ORDER BY updated_at DESC
-	`
-
-	rows, err := r.pool.Query(ctx, query)
-	if err != nil {
-		log.Printf("Error getting all formulas in repository: %v\n", err)
-		return nil, fmt.Errorf("could not get all formulas: %w", err)
-	}
-	defer rows.Close()
-
-	return scanFormulas(rows)
 }
 
 func (r *formulaRepository) UpdateFormula(ctx context.Context, formula *models.Formula) error {
@@ -130,6 +113,23 @@ func (r *formulaRepository) DeleteFormula(ctx context.Context, id uuid.UUID) err
 		return pgx.ErrNoRows
 	}
 	return nil
+}
+
+func (r *formulaRepository) GetAllFormulas(ctx context.Context) ([]models.Formula, error) {
+	query := `
+		SELECT id, title, content, description, created_at, updated_at
+		FROM formulas
+		ORDER BY updated_at DESC
+	`
+
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		log.Printf("Error getting all formulas in repository: %v\n", err)
+		return nil, fmt.Errorf("could not get all formulas: %w", err)
+	}
+	defer rows.Close()
+
+	return scanFormulas(rows)
 }
 
 func (r *formulaRepository) SearchFormulasByTitle(ctx context.Context, title string) ([]models.Formula, error) {

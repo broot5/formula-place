@@ -18,19 +18,19 @@ var (
 	ErrFormulaNotFound = errors.New("formula not found")
 )
 
-type FormulaServiceInterface interface {
+type FormulaService interface {
 	CreateFormula(ctx context.Context, req *models.CreateFormulaRequest) (*models.FormulaResponse, error)
-	GetFormulaByID(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error)
-	GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error)
+	GetFormula(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error)
 	UpdateFormula(ctx context.Context, id uuid.UUID, req *models.UpdateFormulaRequest) (*models.FormulaResponse, error)
 	DeleteFormula(ctx context.Context, id uuid.UUID) error
+	GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error)
 }
 
 type formulaService struct {
-	repo repositories.FormulaRepositoryInterface
+	repo repositories.FormulaRepository
 }
 
-func NewFormulaService(repo repositories.FormulaRepositoryInterface) FormulaServiceInterface {
+func NewFormulaService(repo repositories.FormulaRepository) FormulaService {
 	return &formulaService{repo: repo}
 }
 
@@ -67,8 +67,8 @@ func (s *formulaService) CreateFormula(ctx context.Context, req *models.CreateFo
 	return dbModelToResponse(formula), nil
 }
 
-func (s *formulaService) GetFormulaByID(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error) {
-	formula, err := s.repo.GetFormulaByID(ctx, id)
+func (s *formulaService) GetFormula(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error) {
+	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get formula by ID: %w", err)
 	}
@@ -80,30 +80,8 @@ func (s *formulaService) GetFormulaByID(ctx context.Context, id uuid.UUID) (*mod
 	return dbModelToResponse(formula), nil
 }
 
-func (s *formulaService) GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error) {
-	var formulas []models.Formula
-	var err error
-
-	if title != "" {
-		formulas, err = s.repo.SearchFormulasByTitle(ctx, title)
-	} else {
-		formulas, err = s.repo.GetAllFormulas(ctx)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to get formulas: %w", err)
-	}
-
-	responses := make([]models.FormulaResponse, len(formulas))
-	for i, formula := range formulas {
-		responses[i] = *dbModelToResponse(&formula)
-	}
-
-	return responses, nil
-}
-
 func (s *formulaService) UpdateFormula(ctx context.Context, id uuid.UUID, req *models.UpdateFormulaRequest) (*models.FormulaResponse, error) {
-	formula, err := s.repo.GetFormulaByID(ctx, id)
+	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get formula for update: %w", err)
 	}
@@ -150,6 +128,28 @@ func (s *formulaService) DeleteFormula(ctx context.Context, id uuid.UUID) error 
 	}
 
 	return nil
+}
+
+func (s *formulaService) GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error) {
+	var formulas []models.Formula
+	var err error
+
+	if title != "" {
+		formulas, err = s.repo.SearchFormulasByTitle(ctx, title)
+	} else {
+		formulas, err = s.repo.GetAllFormulas(ctx)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get formulas: %w", err)
+	}
+
+	responses := make([]models.FormulaResponse, len(formulas))
+	for i, formula := range formulas {
+		responses[i] = *dbModelToResponse(&formula)
+	}
+
+	return responses, nil
 }
 
 func dbModelToResponse(formula *models.Formula) *models.FormulaResponse {

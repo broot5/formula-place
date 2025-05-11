@@ -7,15 +7,15 @@ import (
 )
 
 type CreateFormulaRequest struct {
-	Title       string `json:"title" validate:"required,min=1,max=255"`
-	Content     string `json:"content" validate:"required"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
 	Description string `json:"description"`
 }
 
 type UpdateFormulaRequest struct {
-	Title       *string `json:"title,omitempty" validate:"omitempty,min=1,max=255"`
-	Content     *string `json:"content,omitempty" validate:"omitempty"`
-	Description *string `json:"description,omitempty" validate:"omitempty"`
+	Title       *string `json:"title"`
+	Content     *string `json:"content"`
+	Description *string `json:"description"`
 }
 
 type FormulaResponse struct {

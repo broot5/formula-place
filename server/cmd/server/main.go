@@ -15,6 +15,8 @@ import (
 	"github.com/broot5/formula-place/server/internal/handlers"
 	"github.com/broot5/formula-place/server/internal/repositories"
 	"github.com/broot5/formula-place/server/internal/services"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -42,18 +44,19 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Formula Place API"))
-	})
-
 	r.Route("/api", func(r chi.Router) {
-		r.Route("/formulas", func(r chi.Router) {
-			r.Post("/", formulaHandler.CreateFormula)
-			r.Get("/", formulaHandler.GetAllFormulas)
-			r.Get("/{id}", formulaHandler.GetFormulaByID)
-			r.Put("/{id}", formulaHandler.UpdateFormula)
-			r.Delete("/{id}", formulaHandler.DeleteFormula)
-		})
+		config := huma.DefaultConfig("Formula Place API", "1.0.0")
+		config.Servers = []*huma.Server{
+			{URL: "http://localhost:3000/api"},
+		}
+
+		api := humachi.New(r, config)
+
+		huma.Post(api, "/formulas", formulaHandler.CreateFormula)
+		huma.Get(api, "/formulas/{id}", formulaHandler.GetFormula)
+		huma.Patch(api, "/formulas/{id}", formulaHandler.UpdateFormula)
+		huma.Delete(api, "/formulas/{id}", formulaHandler.DeleteFormula)
+		huma.Get(api, "/formulas", formulaHandler.GetAllFormulas)
 	})
 
 	server := &http.Server{
