@@ -15,11 +15,12 @@ import (
 	"github.com/broot5/formula-place/server/internal/handlers"
 	"github.com/broot5/formula-place/server/internal/repositories"
 	"github.com/broot5/formula-place/server/internal/services"
+
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -40,6 +41,14 @@ func main() {
 
 	r := chi.NewRouter()
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
