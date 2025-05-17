@@ -49,8 +49,6 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("config validation failed: %w", err)
 	}
 
-	log.Println("Configuration loaded successfully")
-
 	return cfg, nil
 }
 
@@ -59,6 +57,7 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 	log.Printf("Environment variable %s not set, using fallback: %s", key, fallback)
+
 	return fallback
 }
 
@@ -68,6 +67,7 @@ func getEnvAsInt(key string, fallback int) int {
 		return value
 	}
 	log.Printf("Environment variable %s not an integer or not set, using fallback: %d", key, fallback)
+
 	return fallback
 }
 

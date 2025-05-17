@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/broot5/formula-place/server/internal/models"
 
@@ -45,9 +44,9 @@ func (r *formulaRepository) CreateFormula(ctx context.Context, formula *models.F
 		formula.UpdatedAt,
 	)
 	if err != nil {
-		log.Printf("Error creating formula in repository: %v\n", err)
-		return fmt.Errorf("could not create formula in DB: %w", err)
+		return fmt.Errorf("failed to insert formula in repository: %w", err)
 	}
+
 	return nil
 }
 
@@ -70,11 +69,12 @@ func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*mode
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+			return nil, pgx.ErrNoRows
 		}
-		log.Printf("Error scanning formula by ID in repository: %v\n", err)
-		return nil, fmt.Errorf("could not get formula by ID: %w", err)
+
+		return nil, fmt.Errorf("failed to query formula in repository: %w", err)
 	}
+
 	return &formula, nil
 }
 
@@ -91,13 +91,15 @@ func (r *formulaRepository) UpdateFormula(ctx context.Context, formula *models.F
 		formula.UpdatedAt,
 		formula.ID,
 	)
+
 	if err != nil {
-		log.Printf("Error updating formula in repository: %v\n", err)
-		return fmt.Errorf("could not update formula: %w", err)
+		return fmt.Errorf("failed to update formula in repository: %w", err)
 	}
+
 	if cmdTag.RowsAffected() == 0 {
 		return pgx.ErrNoRows
 	}
+
 	return nil
 }
 
@@ -106,12 +108,12 @@ func (r *formulaRepository) DeleteFormula(ctx context.Context, id uuid.UUID) err
 
 	cmdTag, err := r.pool.Exec(ctx, query, id)
 	if err != nil {
-		log.Printf("Error deleting formula in repository: %v\n", err)
-		return fmt.Errorf("could not delete formula: %w", err)
+		return fmt.Errorf("failed to delete formula in repository: %w", err)
 	}
 	if cmdTag.RowsAffected() == 0 {
 		return pgx.ErrNoRows
 	}
+
 	return nil
 }
 
@@ -124,8 +126,7 @@ func (r *formulaRepository) GetAllFormulas(ctx context.Context) ([]models.Formul
 
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
-		log.Printf("Error getting all formulas in repository: %v\n", err)
-		return nil, fmt.Errorf("could not get all formulas: %w", err)
+		return nil, fmt.Errorf("failed to get all formulas in repository: %w", err)
 	}
 	defer rows.Close()
 
@@ -143,8 +144,7 @@ func (r *formulaRepository) SearchFormulasByTitle(ctx context.Context, title str
     `
 	rows, err := r.pool.Query(ctx, query, searchTerm)
 	if err != nil {
-		log.Printf("Error searching formulas by title in repository: %v\n", err)
-		return nil, fmt.Errorf("could not search formulas by title: %w", err)
+		return nil, fmt.Errorf("failed to search formulas by title in repository: %w", err)
 	}
 	defer rows.Close()
 
@@ -152,23 +152,25 @@ func (r *formulaRepository) SearchFormulasByTitle(ctx context.Context, title str
 }
 
 func scanFormulas(rows pgx.Rows) ([]models.Formula, error) {
-	var formulas []models.Formula
-	for rows.Next() {
+	formulas, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (models.Formula, error) {
 		var f models.Formula
-		if err := rows.Scan(
+		err := row.Scan(
 			&f.ID,
 			&f.Title,
 			&f.Content,
 			&f.Description,
 			&f.CreatedAt,
 			&f.UpdatedAt,
-		); err != nil {
-			return nil, fmt.Errorf("could not scan formula row: %w", err)
+		)
+		if err != nil {
+			return models.Formula{}, fmt.Errorf("failed to scan formula data in repository: %w", err)
 		}
-		formulas = append(formulas, f)
+		return f, nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect formula rows in repository: %w", err)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating formula rows: %w", err)
-	}
+
 	return formulas, nil
 }

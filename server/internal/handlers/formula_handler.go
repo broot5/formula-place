@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/broot5/formula-place/server/internal/models"
 	"github.com/broot5/formula-place/server/internal/services"
@@ -27,7 +28,7 @@ type UpdateFormulaInput struct {
 }
 
 type FormulaIDInput struct {
-	Uuid uuid.UUID `path:"id" format:"uuid"`
+	UUID uuid.UUID `path:"id" format:"uuid"`
 }
 
 type FormulaSearchByTitleInput struct {
@@ -55,16 +56,18 @@ func NewFormulaHandler(service services.FormulaService) *FormulaHandler {
 func (h *FormulaHandler) CreateFormula(ctx context.Context, input *CreateFormulaInput) (*FormulaResponseOutput, error) {
 	modelResponse, err := h.service.CreateFormula(ctx, (*models.CreateFormulaRequest)(&input.Body))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create formula in handler: %w", err)
 	}
+
 	return &FormulaResponseOutput{Body: modelResponse}, nil
 }
 
 func (h *FormulaHandler) GetFormula(ctx context.Context, input *FormulaIDInput) (*FormulaResponseOutput, error) {
-	modelResponse, err := h.service.GetFormula(ctx, input.Uuid)
+	modelResponse, err := h.service.GetFormula(ctx, input.UUID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get formula in handler: %w", err)
 	}
+
 	return &FormulaResponseOutput{Body: modelResponse}, nil
 }
 
@@ -74,25 +77,28 @@ func (h *FormulaHandler) UpdateFormula(ctx context.Context, input *UpdateFormula
 		Content:     &input.Body.Content,
 		Description: &input.Body.Description,
 	}
-	modelResponse, err := h.service.UpdateFormula(ctx, input.Uuid, updateRequest)
+	modelResponse, err := h.service.UpdateFormula(ctx, input.UUID, updateRequest)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to update formula in handler: %w", err)
 	}
+
 	return &FormulaResponseOutput{Body: modelResponse}, nil
 }
 
 func (h *FormulaHandler) DeleteFormula(ctx context.Context, input *FormulaIDInput) (*struct{}, error) {
-	err := h.service.DeleteFormula(ctx, input.Uuid)
+	err := h.service.DeleteFormula(ctx, input.UUID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to delete formula in handler: %w", err)
 	}
+
 	return nil, nil
 }
 
 func (h *FormulaHandler) GetAllFormulas(ctx context.Context, input *FormulaSearchByTitleInput) (*FormulasReponseOutput, error) {
 	formulas, err := h.service.GetAllFormulas(ctx, input.Title)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get formulas in handler: %w", err)
 	}
+
 	return &FormulasReponseOutput{Body: formulas}, nil
 }

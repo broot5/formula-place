@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -26,7 +27,7 @@ func main() {
 
 	dbPool, err := database.New(context.Background(), cfg.DBConnectionString)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
+		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer dbPool.Close()
 
@@ -41,13 +42,16 @@ func main() {
 	r := routes.NewRouter(deps)
 
 	server := &http.Server{
-		Addr:    ":" + strconv.Itoa(cfg.ServerPort),
-		Handler: r,
+		Addr:         ":" + strconv.Itoa(cfg.ServerPort),
+		Handler:      r,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 
 	go func() {
 		log.Printf("Server starting on port %d", cfg.ServerPort)
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server error: %v", err)
 		}
 	}()

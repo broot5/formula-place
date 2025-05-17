@@ -61,7 +61,7 @@ func (s *formulaService) CreateFormula(ctx context.Context, req *models.CreateFo
 	}
 
 	if err := s.repo.CreateFormula(ctx, formula); err != nil {
-		return nil, fmt.Errorf("failed to create formula: %w", err)
+		return nil, fmt.Errorf("failed to create formula in service: %w", err)
 	}
 
 	return dbModelToResponse(formula), nil
@@ -70,11 +70,11 @@ func (s *formulaService) CreateFormula(ctx context.Context, req *models.CreateFo
 func (s *formulaService) GetFormula(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error) {
 	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get formula by ID: %w", err)
-	}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrFormulaNotFound
+		}
 
-	if formula == nil {
-		return nil, ErrFormulaNotFound
+		return nil, fmt.Errorf("failed to get formula in service: %w", err)
 	}
 
 	return dbModelToResponse(formula), nil
@@ -83,11 +83,11 @@ func (s *formulaService) GetFormula(ctx context.Context, id uuid.UUID) (*models.
 func (s *formulaService) UpdateFormula(ctx context.Context, id uuid.UUID, req *models.UpdateFormulaRequest) (*models.FormulaResponse, error) {
 	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get formula for update: %w", err)
-	}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrFormulaNotFound
+		}
 
-	if formula == nil {
-		return nil, ErrFormulaNotFound
+		return nil, fmt.Errorf("failed to get formula for update in service: %w", err)
 	}
 
 	if req.Title != nil {
@@ -112,7 +112,8 @@ func (s *formulaService) UpdateFormula(ctx context.Context, id uuid.UUID, req *m
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrFormulaNotFound
 		}
-		return nil, fmt.Errorf("failed to update formula: %w", err)
+
+		return nil, fmt.Errorf("failed to update formula in service: %w", err)
 	}
 
 	return dbModelToResponse(formula), nil
@@ -124,7 +125,8 @@ func (s *formulaService) DeleteFormula(ctx context.Context, id uuid.UUID) error 
 		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrFormulaNotFound
 		}
-		return fmt.Errorf("failed to delete formula: %w", err)
+
+		return fmt.Errorf("failed to delete formula in service: %w", err)
 	}
 
 	return nil
@@ -141,7 +143,7 @@ func (s *formulaService) GetAllFormulas(ctx context.Context, title string) ([]mo
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to get formulas: %w", err)
+		return nil, fmt.Errorf("failed to get formulas in service: %w", err)
 	}
 
 	responses := make([]models.FormulaResponse, len(formulas))
