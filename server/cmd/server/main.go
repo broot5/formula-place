@@ -38,7 +38,6 @@ func main() {
 	deps := &routes.RouterDeps{
 		FormulaHandler: formulaHandler,
 	}
-
 	r := routes.NewRouter(deps)
 
 	server := &http.Server{

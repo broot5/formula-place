@@ -1,12 +1,23 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
+)
+
+var (
+	ErrInvalidServerPort  = errors.New("invalid server port")
+	ErrInvalidDBPort      = errors.New("invalid database port")
+	ErrDBUserRequired     = errors.New("database user is required")
+	ErrDBPasswordRequired = errors.New("database password is required")
+	ErrDBHostRequired     = errors.New("database host is required")
+	ErrDBNameRequired     = errors.New("database name is required")
 )
 
 type Config struct {
@@ -33,7 +44,7 @@ func Load() (*Config, error) {
 	dbPort := getEnvAsInt("DB_PORT", 5432)
 	dbName := getEnv("DB_NAME", "database")
 
-	dbConnectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, strconv.Itoa(dbPort), dbName)
+	dbConnectionString := fmt.Sprintf("postgres://%s:%s@%s/%s", dbUser, dbPassword, net.JoinHostPort(dbHost, strconv.Itoa(dbPort)), dbName)
 
 	cfg := &Config{
 		ServerPort:         serverPort,
@@ -46,7 +57,7 @@ func Load() (*Config, error) {
 	}
 
 	if err := validateConfig(cfg); err != nil {
-		return nil, fmt.Errorf("config validation failed: %w", err)
+		return nil, fmt.Errorf("failed to validate config: %w", err)
 	}
 
 	return cfg, nil
@@ -56,6 +67,7 @@ func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}
+
 	log.Printf("Environment variable %s not set, using fallback: %s", key, fallback)
 
 	return fallback
@@ -66,11 +78,31 @@ func getEnvAsInt(key string, fallback int) int {
 	if value, err := strconv.Atoi(valueStr); err == nil {
 		return value
 	}
+
 	log.Printf("Environment variable %s not an integer or not set, using fallback: %d", key, fallback)
 
 	return fallback
 }
 
 func validateConfig(cfg *Config) error {
+	if cfg.ServerPort <= 0 || cfg.ServerPort > 65535 {
+		return fmt.Errorf("invalid server port: %d: %w", cfg.ServerPort, ErrInvalidServerPort)
+	}
+	if cfg.DBPort <= 0 || cfg.DBPort > 65535 {
+		return fmt.Errorf("invalid database port: %d: %w", cfg.DBPort, ErrInvalidDBPort)
+	}
+	if cfg.DBUser == "" {
+		return fmt.Errorf("%w", ErrDBUserRequired)
+	}
+	if cfg.DBPassword == "" {
+		return fmt.Errorf("%w", ErrDBPasswordRequired)
+	}
+	if cfg.DBHost == "" {
+		return fmt.Errorf("%w", ErrDBHostRequired)
+	}
+	if cfg.DBName == "" {
+		return fmt.Errorf("%w", ErrDBNameRequired)
+	}
+
 	return nil
 }

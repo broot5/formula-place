@@ -56,6 +56,7 @@ func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*mode
 		FROM formulas
 		WHERE id = $1
 	`
+
 	row := r.pool.QueryRow(ctx, query, id)
 
 	var formula models.Formula
@@ -84,6 +85,7 @@ func (r *formulaRepository) UpdateFormula(ctx context.Context, formula *models.F
 		SET title = $1, content = $2, description = $3, updated_at = $4
 		WHERE id = $5
 	`
+
 	cmdTag, err := r.pool.Exec(ctx, query,
 		formula.Title,
 		formula.Content,
@@ -142,6 +144,7 @@ func (r *formulaRepository) SearchFormulasByTitle(ctx context.Context, title str
         WHERE title ILIKE $1
         ORDER BY updated_at DESC
     `
+
 	rows, err := r.pool.Query(ctx, query, searchTerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search formulas by title in repository: %w", err)
@@ -165,6 +168,7 @@ func scanFormulas(rows pgx.Rows) ([]models.Formula, error) {
 		if err != nil {
 			return models.Formula{}, fmt.Errorf("failed to scan formula data in repository: %w", err)
 		}
+
 		return f, nil
 	})
 

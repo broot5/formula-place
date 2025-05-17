@@ -77,6 +77,7 @@ func (h *FormulaHandler) UpdateFormula(ctx context.Context, input *UpdateFormula
 		Content:     &input.Body.Content,
 		Description: &input.Body.Description,
 	}
+
 	modelResponse, err := h.service.UpdateFormula(ctx, input.UUID, updateRequest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update formula in handler: %w", err)
