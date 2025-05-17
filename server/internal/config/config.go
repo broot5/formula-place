@@ -44,7 +44,13 @@ func Load() (*Config, error) {
 	dbPort := getEnvAsInt("DB_PORT", 5432)
 	dbName := getEnv("DB_NAME", "database")
 
-	dbConnectionString := fmt.Sprintf("postgres://%s:%s@%s/%s", dbUser, dbPassword, net.JoinHostPort(dbHost, strconv.Itoa(dbPort)), dbName)
+	dbConnectionString := fmt.Sprintf(
+		"postgres://%s:%s@%s/%s",
+		dbUser,
+		dbPassword,
+		net.JoinHostPort(dbHost, strconv.Itoa(dbPort)),
+		dbName,
+	)
 
 	cfg := &Config{
 		ServerPort:         serverPort,
@@ -79,7 +85,11 @@ func getEnvAsInt(key string, fallback int) int {
 		return value
 	}
 
-	log.Printf("Environment variable %s not an integer or not set, using fallback: %d", key, fallback)
+	log.Printf(
+		"Environment variable %s not an integer or not set, using fallback: %d",
+		key,
+		fallback,
+	)
 
 	return fallback
 }

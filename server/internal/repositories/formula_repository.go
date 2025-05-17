@@ -93,11 +93,9 @@ func (r *formulaRepository) UpdateFormula(ctx context.Context, formula *models.F
 		formula.UpdatedAt,
 		formula.ID,
 	)
-
 	if err != nil {
 		return fmt.Errorf("failed to update formula in repository: %w", err)
 	}
-
 	if cmdTag.RowsAffected() == 0 {
 		return pgx.ErrNoRows
 	}
@@ -135,7 +133,10 @@ func (r *formulaRepository) GetAllFormulas(ctx context.Context) ([]models.Formul
 	return scanFormulas(rows)
 }
 
-func (r *formulaRepository) SearchFormulasByTitle(ctx context.Context, title string) ([]models.Formula, error) {
+func (r *formulaRepository) SearchFormulasByTitle(
+	ctx context.Context,
+	title string,
+) ([]models.Formula, error) {
 	searchTerm := "%" + title + "%"
 
 	query := `
@@ -166,12 +167,14 @@ func scanFormulas(rows pgx.Rows) ([]models.Formula, error) {
 			&f.UpdatedAt,
 		)
 		if err != nil {
-			return models.Formula{}, fmt.Errorf("failed to scan formula data in repository: %w", err)
+			return models.Formula{}, fmt.Errorf(
+				"failed to scan formula data in repository: %w",
+				err,
+			)
 		}
 
 		return f, nil
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to collect formula rows in repository: %w", err)
 	}

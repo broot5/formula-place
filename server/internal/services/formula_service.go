@@ -14,14 +14,19 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-var (
-	ErrFormulaNotFound = errors.New("formula not found")
-)
+var ErrFormulaNotFound = errors.New("formula not found")
 
 type FormulaService interface {
-	CreateFormula(ctx context.Context, req *models.CreateFormulaRequest) (*models.FormulaResponse, error)
+	CreateFormula(
+		ctx context.Context,
+		req *models.CreateFormulaRequest,
+	) (*models.FormulaResponse, error)
 	GetFormula(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error)
-	UpdateFormula(ctx context.Context, id uuid.UUID, req *models.UpdateFormulaRequest) (*models.FormulaResponse, error)
+	UpdateFormula(
+		ctx context.Context,
+		id uuid.UUID,
+		req *models.UpdateFormulaRequest,
+	) (*models.FormulaResponse, error)
 	DeleteFormula(ctx context.Context, id uuid.UUID) error
 	GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error)
 }
@@ -34,7 +39,10 @@ func NewFormulaService(repo repositories.FormulaRepository) FormulaService {
 	return &formulaService{repo: repo}
 }
 
-func (s *formulaService) CreateFormula(ctx context.Context, req *models.CreateFormulaRequest) (*models.FormulaResponse, error) {
+func (s *formulaService) CreateFormula(
+	ctx context.Context,
+	req *models.CreateFormulaRequest,
+) (*models.FormulaResponse, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate UUID: %w", err)
@@ -67,7 +75,10 @@ func (s *formulaService) CreateFormula(ctx context.Context, req *models.CreateFo
 	return dbModelToResponse(formula), nil
 }
 
-func (s *formulaService) GetFormula(ctx context.Context, id uuid.UUID) (*models.FormulaResponse, error) {
+func (s *formulaService) GetFormula(
+	ctx context.Context,
+	id uuid.UUID,
+) (*models.FormulaResponse, error) {
 	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -80,7 +91,11 @@ func (s *formulaService) GetFormula(ctx context.Context, id uuid.UUID) (*models.
 	return dbModelToResponse(formula), nil
 }
 
-func (s *formulaService) UpdateFormula(ctx context.Context, id uuid.UUID, req *models.UpdateFormulaRequest) (*models.FormulaResponse, error) {
+func (s *formulaService) UpdateFormula(
+	ctx context.Context,
+	id uuid.UUID,
+	req *models.UpdateFormulaRequest,
+) (*models.FormulaResponse, error) {
 	formula, err := s.repo.GetFormula(ctx, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -132,7 +147,10 @@ func (s *formulaService) DeleteFormula(ctx context.Context, id uuid.UUID) error 
 	return nil
 }
 
-func (s *formulaService) GetAllFormulas(ctx context.Context, title string) ([]models.FormulaResponse, error) {
+func (s *formulaService) GetAllFormulas(
+	ctx context.Context,
+	title string,
+) ([]models.FormulaResponse, error) {
 	var formulas []models.Formula
 	var err error
 
