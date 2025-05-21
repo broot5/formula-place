@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { getAllFormulas } from "@/services/formulaService";
 import type { FormulaResponse } from "@/types/formula";
 
-export const Route = createFileRoute("/formulas")({
-  component: Formulas,
+export const Route = createFileRoute("/formulas/")({
+  component: FormulasPage,
 });
 
-function Formulas() {
+function FormulasPage() {
   const [formulas, setFormulas] = useState<FormulaResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
