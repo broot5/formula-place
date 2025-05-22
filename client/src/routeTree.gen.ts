@@ -15,7 +15,8 @@ import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as FormulasIndexImport } from './routes/formulas/index'
 import { Route as FormulasNewImport } from './routes/formulas/new'
-import { Route as FormulasIdImport } from './routes/formulas/$id'
+import { Route as FormulasIdIndexImport } from './routes/formulas/$id/index'
+import { Route as FormulasIdEditImport } from './routes/formulas/$id/edit'
 
 // Create/Update Routes
 
@@ -43,9 +44,15 @@ const FormulasNewRoute = FormulasNewImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const FormulasIdRoute = FormulasIdImport.update({
-  id: '/formulas/$id',
-  path: '/formulas/$id',
+const FormulasIdIndexRoute = FormulasIdIndexImport.update({
+  id: '/formulas/$id/',
+  path: '/formulas/$id/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FormulasIdEditRoute = FormulasIdEditImport.update({
+  id: '/formulas/$id/edit',
+  path: '/formulas/$id/edit',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,13 +74,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/formulas/$id': {
-      id: '/formulas/$id'
-      path: '/formulas/$id'
-      fullPath: '/formulas/$id'
-      preLoaderRoute: typeof FormulasIdImport
-      parentRoute: typeof rootRoute
-    }
     '/formulas/new': {
       id: '/formulas/new'
       path: '/formulas/new'
@@ -88,6 +88,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormulasIndexImport
       parentRoute: typeof rootRoute
     }
+    '/formulas/$id/edit': {
+      id: '/formulas/$id/edit'
+      path: '/formulas/$id/edit'
+      fullPath: '/formulas/$id/edit'
+      preLoaderRoute: typeof FormulasIdEditImport
+      parentRoute: typeof rootRoute
+    }
+    '/formulas/$id/': {
+      id: '/formulas/$id/'
+      path: '/formulas/$id'
+      fullPath: '/formulas/$id'
+      preLoaderRoute: typeof FormulasIdIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -96,57 +110,75 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/formulas/$id': typeof FormulasIdRoute
   '/formulas/new': typeof FormulasNewRoute
   '/formulas': typeof FormulasIndexRoute
+  '/formulas/$id/edit': typeof FormulasIdEditRoute
+  '/formulas/$id': typeof FormulasIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/formulas/$id': typeof FormulasIdRoute
   '/formulas/new': typeof FormulasNewRoute
   '/formulas': typeof FormulasIndexRoute
+  '/formulas/$id/edit': typeof FormulasIdEditRoute
+  '/formulas/$id': typeof FormulasIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/formulas/$id': typeof FormulasIdRoute
   '/formulas/new': typeof FormulasNewRoute
   '/formulas/': typeof FormulasIndexRoute
+  '/formulas/$id/edit': typeof FormulasIdEditRoute
+  '/formulas/$id/': typeof FormulasIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/formulas/$id' | '/formulas/new' | '/formulas'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/formulas/new'
+    | '/formulas'
+    | '/formulas/$id/edit'
+    | '/formulas/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/formulas/$id' | '/formulas/new' | '/formulas'
+  to:
+    | '/'
+    | '/about'
+    | '/formulas/new'
+    | '/formulas'
+    | '/formulas/$id/edit'
+    | '/formulas/$id'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/formulas/$id'
     | '/formulas/new'
     | '/formulas/'
+    | '/formulas/$id/edit'
+    | '/formulas/$id/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  FormulasIdRoute: typeof FormulasIdRoute
   FormulasNewRoute: typeof FormulasNewRoute
   FormulasIndexRoute: typeof FormulasIndexRoute
+  FormulasIdEditRoute: typeof FormulasIdEditRoute
+  FormulasIdIndexRoute: typeof FormulasIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  FormulasIdRoute: FormulasIdRoute,
   FormulasNewRoute: FormulasNewRoute,
   FormulasIndexRoute: FormulasIndexRoute,
+  FormulasIdEditRoute: FormulasIdEditRoute,
+  FormulasIdIndexRoute: FormulasIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -161,9 +193,10 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
-        "/formulas/$id",
         "/formulas/new",
-        "/formulas/"
+        "/formulas/",
+        "/formulas/$id/edit",
+        "/formulas/$id/"
       ]
     },
     "/": {
@@ -172,14 +205,17 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.tsx"
     },
-    "/formulas/$id": {
-      "filePath": "formulas/$id.tsx"
-    },
     "/formulas/new": {
       "filePath": "formulas/new.tsx"
     },
     "/formulas/": {
       "filePath": "formulas/index.tsx"
+    },
+    "/formulas/$id/edit": {
+      "filePath": "formulas/$id/edit.tsx"
+    },
+    "/formulas/$id/": {
+      "filePath": "formulas/$id/index.tsx"
     }
   }
 }

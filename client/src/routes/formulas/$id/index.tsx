@@ -4,12 +4,13 @@ import type { UUID } from "crypto";
 import { useEffect, useState } from "react";
 import type { FormulaResponse } from "@/types/formula";
 
-export const Route = createFileRoute("/formulas/$id")({
+export const Route = createFileRoute("/formulas/$id/")({
   component: FormulaPage,
 });
 
 function FormulaPage() {
   const { id } = Route.useParams();
+
   const [formula, setFormula] = useState<FormulaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,12 +18,10 @@ function FormulaPage() {
   useEffect(() => {
     const fetchFormula = async () => {
       try {
-        setLoading(true);
         const data = await getFormula(id as UUID);
         setFormula(data);
-        setError(null);
       } catch (err) {
-        setError("Failed to get formula.");
+        setError("Failed to get formula");
         console.error(err);
       } finally {
         setLoading(false);
@@ -37,7 +36,7 @@ function FormulaPage() {
   }
 
   if (error || !formula) {
-    return <div>Error: {error}</div>;
+    return <div>{error}</div>;
   }
 
   return (
