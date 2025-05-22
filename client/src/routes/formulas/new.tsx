@@ -44,15 +44,15 @@ function NewFormulaPage() {
         </div>
 
         <div>
-          <label htmlFor="content">Content</label>
-          <textarea id="content" rows={10} {...register("content")}></textarea>
-          {errors.content && <p>{errors.content.message}</p>}
-        </div>
-
-        <div>
           <label htmlFor="description">Description</label>
           <input type="text" id="description" {...register("description")} />
           {errors.description && <p>{errors.description.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="content">Content</label>
+          <textarea id="content" rows={10} {...register("content")}></textarea>
+          {errors.content && <p>{errors.content.message}</p>}
         </div>
 
         <button type="submit" disabled={isSubmitting || !isValid}>

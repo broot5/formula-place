@@ -8,8 +8,8 @@ import (
 type Formula struct {
 	ID          uuid.UUID          `json:"id"`
 	Title       string             `json:"title"`
-	Content     string             `json:"content"`
 	Description pgtype.Text        `json:"description"`
+	Content     string             `json:"content"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }

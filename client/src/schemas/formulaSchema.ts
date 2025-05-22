@@ -5,8 +5,8 @@ export const formulaSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be less than 255 characters"),
-  content: z.string().min(1, "Content is required"),
   description: z.string().optional(),
+  content: z.string().min(1, "Content is required"),
 });
 
 export type FormulaFormData = z.infer<typeof formulaSchema>;

@@ -51,13 +51,13 @@ func (s *formulaService) CreateFormula(
 	now := time.Now().UTC()
 
 	formula := &models.Formula{
-		ID:      id,
-		Title:   req.Title,
-		Content: req.Content,
+		ID:    id,
+		Title: req.Title,
 		Description: pgtype.Text{
 			String: req.Description,
 			Valid:  true,
 		},
+		Content: req.Content,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  now,
 			Valid: true,
@@ -108,14 +108,14 @@ func (s *formulaService) UpdateFormula(
 	if req.Title != nil {
 		formula.Title = *req.Title
 	}
-	if req.Content != nil {
-		formula.Content = *req.Content
-	}
 	if req.Description != nil {
 		formula.Description = pgtype.Text{
 			String: *req.Description,
 			Valid:  true,
 		}
+	}
+	if req.Content != nil {
+		formula.Content = *req.Content
 	}
 
 	formula.UpdatedAt = pgtype.Timestamptz{
@@ -191,8 +191,8 @@ func dbModelToResponse(formula *models.Formula) *models.FormulaResponse {
 	return &models.FormulaResponse{
 		ID:          formula.ID,
 		Title:       formula.Title,
-		Content:     formula.Content,
 		Description: description,
+		Content:     formula.Content,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}

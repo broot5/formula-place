@@ -31,15 +31,15 @@ func NewFormulaRepository(pool *pgxpool.Pool) FormulaRepository {
 
 func (r *formulaRepository) CreateFormula(ctx context.Context, formula *models.Formula) error {
 	query := `
-		INSERT INTO formulas (id, title, content, description, created_at, updated_at)
+		INSERT INTO formulas (id, title, description, content, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
 	_, err := r.pool.Exec(ctx, query,
 		formula.ID,
 		formula.Title,
-		formula.Content,
 		formula.Description,
+		formula.Content,
 		formula.CreatedAt,
 		formula.UpdatedAt,
 	)
@@ -52,7 +52,7 @@ func (r *formulaRepository) CreateFormula(ctx context.Context, formula *models.F
 
 func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*models.Formula, error) {
 	query := `
-		SELECT id, title, content, description, created_at, updated_at
+		SELECT id, title, description, content, created_at, updated_at
 		FROM formulas
 		WHERE id = $1
 	`
@@ -63,8 +63,8 @@ func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*mode
 	err := row.Scan(
 		&formula.ID,
 		&formula.Title,
-		&formula.Content,
 		&formula.Description,
+		&formula.Content,
 		&formula.CreatedAt,
 		&formula.UpdatedAt,
 	)
@@ -82,14 +82,14 @@ func (r *formulaRepository) GetFormula(ctx context.Context, id uuid.UUID) (*mode
 func (r *formulaRepository) UpdateFormula(ctx context.Context, formula *models.Formula) error {
 	query := `
 		UPDATE formulas
-		SET title = $1, content = $2, description = $3, updated_at = $4
+		SET title = $1, description = $2, content = $3, updated_at = $4
 		WHERE id = $5
 	`
 
 	cmdTag, err := r.pool.Exec(ctx, query,
 		formula.Title,
-		formula.Content,
 		formula.Description,
+		formula.Content,
 		formula.UpdatedAt,
 		formula.ID,
 	)
@@ -119,7 +119,7 @@ func (r *formulaRepository) DeleteFormula(ctx context.Context, id uuid.UUID) err
 
 func (r *formulaRepository) GetAllFormulas(ctx context.Context) ([]models.Formula, error) {
 	query := `
-		SELECT id, title, content, description, created_at, updated_at
+		SELECT id, title, description, content, created_at, updated_at
 		FROM formulas
 		ORDER BY updated_at DESC
 	`
@@ -140,7 +140,7 @@ func (r *formulaRepository) SearchFormulasByTitle(
 	searchTerm := "%" + title + "%"
 
 	query := `
-        SELECT id, title, content, description, created_at, updated_at
+        SELECT id, title, description, content, created_at, updated_at
         FROM formulas
         WHERE title ILIKE $1
         ORDER BY updated_at DESC
@@ -161,8 +161,8 @@ func scanFormulas(rows pgx.Rows) ([]models.Formula, error) {
 		err := row.Scan(
 			&f.ID,
 			&f.Title,
-			&f.Content,
 			&f.Description,
+			&f.Content,
 			&f.CreatedAt,
 			&f.UpdatedAt,
 		)

@@ -10,8 +10,8 @@ export type UpdateFormulaRequest = formulaUpdateFormData;
 export interface FormulaResponse {
   id: UUID;
   title: string;
-  content: string;
   description: string;
+  content: string;
   created_at: Date;
   updated_at: Date;
 }
