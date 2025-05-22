@@ -28,7 +28,7 @@ function NewFormulaPage() {
       await createFormula(data);
       navigate({ to: "/formulas" });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setSubmitError("Failed to create formula. Please try again.");
     }
   };
