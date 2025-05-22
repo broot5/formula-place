@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { getAllFormulas } from "@/services/formulaService";
 import type { FormulaResponse } from "@/types/formula";
@@ -8,6 +8,8 @@ export const Route = createFileRoute("/formulas/")({
 });
 
 function FormulasPage() {
+  const navigate = useNavigate();
+
   const [formulas, setFormulas] = useState<FormulaResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ function FormulasPage() {
         setLoading(false);
       })
       .catch(() => {
-        setError("Failed to load the list of formulas.");
+        setError("Failed to load the list of formulas");
         setLoading(false);
       });
   }, []);
@@ -28,20 +30,21 @@ function FormulasPage() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Formula List</h2>
+    <div>
+      <h1>Formula List</h1>
       {formulas.length === 0 ? (
         <div>No formulas registered.</div>
       ) : (
-        <ul className="space-y-4">
+        <ul>
           {formulas.map((formula) => (
-            <li key={formula.id} className="border rounded p-4">
-              <h3 className="text-lg font-semibold">{formula.title}</h3>
-              <p className="text-gray-700 mb-2">{formula.description}</p>
-              <pre className="bg-gray-100 p-2 rounded overflow-x-auto text-sm">
-                {formula.content}
-              </pre>
-              <div className="text-xs text-gray-500 mt-2">
+            <li
+              key={formula.id}
+              onClick={() => navigate({ to: `/formulas/${formula.id}` })}
+            >
+              <h2>{formula.title}</h2>
+              <p>{formula.description}</p>
+              <pre>{formula.content}</pre>
+              <div>
                 Created: {new Date(formula.created_at).toLocaleString()}
                 <br />
                 Updated: {new Date(formula.updated_at).toLocaleString()}

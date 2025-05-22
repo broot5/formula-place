@@ -11,7 +11,8 @@ export const Route = createFileRoute("/formulas/new")({
 
 function NewFormulaPage() {
   const navigate = useNavigate();
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -24,18 +25,17 @@ function NewFormulaPage() {
 
   const onSubmit = async (data: FormulaFormData) => {
     try {
-      setSubmitError(null);
       await createFormula(data);
       navigate({ to: "/formulas" });
-    } catch (error) {
-      console.error(error);
-      setSubmitError("Failed to create formula. Please try again.");
+    } catch (err) {
+      setError("Failed to create formula");
+      console.error(err);
     }
   };
 
   return (
     <div>
-      {submitError && <div>{submitError}</div>}
+      {error && <div>{error}</div>}
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label htmlFor="title">Title</label>
