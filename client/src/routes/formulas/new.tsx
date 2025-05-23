@@ -4,6 +4,16 @@ import { createFormula } from "@/services/formulaService";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formulaSchema, type FormulaFormData } from "@/schemas/formulaSchema";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/formulas/new")({
   component: NewFormulaPage,
@@ -14,11 +24,7 @@ function NewFormulaPage() {
 
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm({
+  const form = useForm({
     mode: "onBlur",
     resolver: zodResolver(formulaSchema),
   });
@@ -36,29 +42,60 @@ function NewFormulaPage() {
   return (
     <div>
       {error && <div>{error}</div>}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="title">Title</label>
-          <input type="text" id="title" {...register("title")} />
-          {errors.title && <p>{errors.title.message}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="description">Description</label>
-          <input type="text" id="description" {...register("description")} />
-          {errors.description && <p>{errors.description.message}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="content">Content</label>
-          <textarea id="content" rows={10} {...register("content")}></textarea>
-          {errors.content && <p>{errors.content.message}</p>}
-        </div>
-
-        <button type="submit" disabled={isSubmitting || !isValid}>
-          {isSubmitting ? "Saving..." : "Save"}
-        </button>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <input type="text" {...field} />
+                </FormControl>
+                <FormDescription>This is formula's title.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <input type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is formula's description.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <textarea {...field} />
+                </FormControl>
+                <FormDescription>This is formula's content.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting || !form.formState.isValid}
+          >
+            {form.formState.isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
