@@ -8,6 +8,7 @@ import (
 
 	"github.com/broot5/formula-place/server/internal/models"
 	"github.com/broot5/formula-place/server/internal/repositories"
+	"github.com/broot5/formula-place/server/internal/utils"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jackc/pgx/v5"
@@ -51,13 +52,10 @@ func (s *formulaService) CreateFormula(
 	now := time.Now().UTC()
 
 	formula := &models.Formula{
-		ID:    id,
-		Title: req.Title,
-		Description: pgtype.Text{
-			String: req.Description,
-			Valid:  true,
-		},
-		Content: req.Content,
+		ID:          id,
+		Title:       req.Title,
+		Description: utils.StringToNullableText(req.Description),
+		Content:     req.Content,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  now,
 			Valid: true,
@@ -109,10 +107,7 @@ func (s *formulaService) UpdateFormula(
 		formula.Title = *req.Title
 	}
 	if req.Description != nil {
-		formula.Description = pgtype.Text{
-			String: *req.Description,
-			Valid:  true,
-		}
+		formula.Description = utils.StringToNullableText(*req.Description)
 	}
 	if req.Content != nil {
 		formula.Content = *req.Content

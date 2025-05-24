@@ -14,16 +14,16 @@ type CreateFormulaInput struct {
 	Body struct {
 		Title       string `json:"title" minLength:"1" maxLength:"255"`
 		Description string `json:"description,omitempty"`
-		Content     string `json:"content"`
+		Content     string `json:"content" minLength:"1"`
 	}
 }
 
 type UpdateFormulaInput struct {
 	FormulaIDInput
 	Body struct {
-		Title       string `json:"title,omitempty" minLength:"1" maxLength:"255"`
-		Description string `json:"description,omitempty"`
-		Content     string `json:"content,omitempty"`
+		Title       *string `json:"title,omitempty" minLength:"1" maxLength:"255"`
+		Description *string `json:"description,omitempty"`
+		Content     *string `json:"content,omitempty" minLength:"1"`
 	}
 }
 
@@ -82,9 +82,9 @@ func (h *FormulaHandler) UpdateFormula(
 	input *UpdateFormulaInput,
 ) (*FormulaResponseOutput, error) {
 	updateRequest := &models.UpdateFormulaRequest{
-		Title:       &input.Body.Title,
-		Description: &input.Body.Description,
-		Content:     &input.Body.Content,
+		Title:       input.Body.Title,
+		Description: input.Body.Description,
+		Content:     input.Body.Content,
 	}
 
 	modelResponse, err := h.service.UpdateFormula(ctx, input.UUID, updateRequest)
