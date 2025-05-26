@@ -1,17 +1,32 @@
-import { getFormula, updateFormula } from "@/services/formulaService";
+import {
+  deleteFormula,
+  getFormula,
+  updateFormula,
+} from "@/services/formulaService";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { UUID } from "crypto";
 import { useEffect, useState } from "react";
 import type { FormulaResponse } from "@/types/formula";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CalendarClock, CalendarDays } from "lucide-react";
+import { ArrowLeft, CalendarClock, CalendarDays, Trash } from "lucide-react";
 import type { FormulaFormData } from "@/schemas/formulaSchema";
 import { FormulaForm } from "@/components/FormulaForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ErrorState } from "@/components/ErrorState";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/PageHeader";
+import {
+  AlertDialog,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogTrigger,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/formulas/$id")({
   component: FormulaPage,
@@ -41,6 +56,16 @@ function FormulaPage() {
     fetchFormula();
   }, [id]);
 
+  const handleDelete = async () => {
+    try {
+      await deleteFormula(id as UUID);
+      navigate({ to: "/formulas" });
+    } catch (err) {
+      setError("Failed to delete formula.");
+      console.error(err);
+    }
+  };
+
   const handleSubmit = async (data: Partial<FormulaFormData>) => {
     try {
       await updateFormula(id as UUID, data);
@@ -64,13 +89,42 @@ function FormulaPage() {
       <PageHeader
         pageName="Edit Formula"
         action={
-          <Button
-            variant="outline"
-            onClick={() => navigate({ to: "/formulas" })}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Formulas
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate({ to: "/formulas" })}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Formulas
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={loading || !formula}>
+                  <Trash className="h-4 w-4" />
+                  Delete Formula
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Formula</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this formula? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive hover:bg-destructive/50"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         }
       />
 
@@ -81,6 +135,8 @@ function FormulaPage() {
           <LoadingState />
         ) : !formula ? (
           <ErrorState error="Formula not found" />
+        ) : error ? (
+          <ErrorState error={error} />
         ) : (
           <>
             <CardHeader>
