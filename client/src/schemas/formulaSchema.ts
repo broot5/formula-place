@@ -10,6 +10,3 @@ export const formulaSchema = z.object({
 });
 
 export type FormulaFormData = z.infer<typeof formulaSchema>;
-
-export const formulaUpdateSchema = formulaSchema.partial();
-export type formulaUpdateFormData = z.infer<typeof formulaUpdateSchema>;

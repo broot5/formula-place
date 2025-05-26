@@ -1,19 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
 import { createFormula } from "@/services/formulaService";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formulaSchema, type FormulaFormData } from "@/schemas/formulaSchema";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import type { FormulaFormData } from "@/schemas/formulaSchema";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { FormulaForm } from "@/components/FormulaForm";
+import { PageHeader } from "@/components/PageHeader";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/formulas/new")({
   component: NewFormulaPage,
@@ -21,81 +15,53 @@ export const Route = createFileRoute("/formulas/new")({
 
 function NewFormulaPage() {
   const navigate = useNavigate();
-
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm({
-    mode: "onBlur",
-    resolver: zodResolver(formulaSchema),
-  });
-
-  const onSubmit = async (data: FormulaFormData) => {
+  const handleSubmit = async (data: Partial<FormulaFormData>) => {
     try {
-      await createFormula(data);
+      if (!data.title || !data.content) {
+        setError("Title and content are required.");
+        return;
+      }
+      await createFormula({
+        title: data.title,
+        content: data.content,
+        description: data.description ?? "",
+      });
       navigate({ to: "/formulas" });
     } catch (err) {
-      setError("Failed to create formula");
+      setError("Failed to create formula.");
       console.error(err);
     }
   };
 
   return (
-    <div>
-      {error && <div>{error}</div>}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <input type="text" {...field} />
-                </FormControl>
-                <FormDescription>This is formula's title.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <input type="text" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is formula's description.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <textarea {...field} />
-                </FormControl>
-                <FormDescription>This is formula's content.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="max-w-4xl mx-auto flex flex-col gap-6">
+      <PageHeader
+        pageName="Create New Formula"
+        action={
           <Button
-            type="submit"
-            disabled={form.formState.isSubmitting || !form.formState.isValid}
+            variant="outline"
+            onClick={() => navigate({ to: "/formulas" })}
           >
-            {form.formState.isSubmitting ? "Submitting..." : "Submit"}
+            <ArrowLeft className="h-4 w-4" />
+            Back to Formulas
           </Button>
-        </form>
-      </Form>
+        }
+      />
+
+      <Separator />
+
+      <Card>
+        <CardContent>
+          <FormulaForm
+            onSubmit={handleSubmit}
+            error={error}
+            submitButtonText="Create Formula"
+            onCancel={() => navigate({ to: "/formulas" })}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

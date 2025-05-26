@@ -1,11 +1,7 @@
 import type { UUID } from "crypto";
-import type {
-  FormulaFormData,
-  formulaUpdateFormData,
-} from "@/schemas/formulaSchema";
+import type { FormulaFormData } from "@/schemas/formulaSchema";
 
-export type CreateFormulaRequest = FormulaFormData;
-export type UpdateFormulaRequest = formulaUpdateFormData;
+export type FormulaRequest = FormulaFormData;
 
 export interface FormulaResponse {
   id: UUID;

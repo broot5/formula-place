@@ -1,13 +1,9 @@
 import type { UUID } from "crypto";
 import apiClient from "@/lib/axios";
-import type {
-  CreateFormulaRequest,
-  FormulaResponse,
-  UpdateFormulaRequest,
-} from "@/types/formula";
+import type { FormulaRequest, FormulaResponse } from "@/types/formula";
 
 export const createFormula = async (
-  data: CreateFormulaRequest
+  data: FormulaRequest
 ): Promise<FormulaResponse> => {
   const response = await apiClient.post<FormulaResponse>("/formulas", data);
   return response.data;
@@ -20,7 +16,7 @@ export const getFormula = async (id: UUID): Promise<FormulaResponse> => {
 
 export const updateFormula = async (
   id: UUID,
-  data: UpdateFormulaRequest
+  data: Partial<FormulaRequest>
 ): Promise<FormulaResponse> => {
   const response = await apiClient.patch<FormulaResponse>(
     `/formulas/${id}`,

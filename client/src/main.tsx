@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
 
 import { routeTree } from "./routeTree.gen";
+import { MathJaxContext } from "better-react-mathjax";
 
 const router = createRouter({ routeTree });
 
@@ -18,7 +19,9 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <MathJaxContext>
+        <RouterProvider router={router} />
+      </MathJaxContext>
     </StrictMode>
   );
 }
