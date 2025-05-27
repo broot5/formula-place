@@ -12,12 +12,8 @@ import (
 )
 
 var (
-	ErrInvalidServerPort  = errors.New("invalid server port")
-	ErrInvalidDBPort      = errors.New("invalid database port")
-	ErrDBUserRequired     = errors.New("database user is required")
-	ErrDBPasswordRequired = errors.New("database password is required")
-	ErrDBHostRequired     = errors.New("database host is required")
-	ErrDBNameRequired     = errors.New("database name is required")
+	ErrInvalidServerPort = errors.New("invalid server port")
+	ErrInvalidDBPort     = errors.New("invalid database port")
 )
 
 type Config struct {
@@ -81,6 +77,10 @@ func getEnv(key, fallback string) string {
 
 func getEnvAsInt(key string, fallback int) int {
 	valueStr := getEnv(key, "")
+	if valueStr == "" {
+		return fallback
+	}
+
 	if value, err := strconv.Atoi(valueStr); err == nil {
 		return value
 	}
@@ -100,18 +100,6 @@ func validateConfig(cfg *Config) error {
 	}
 	if cfg.DBPort <= 0 || cfg.DBPort > 65535 {
 		return fmt.Errorf("invalid database port: %d: %w", cfg.DBPort, ErrInvalidDBPort)
-	}
-	if cfg.DBUser == "" {
-		return fmt.Errorf("%w", ErrDBUserRequired)
-	}
-	if cfg.DBPassword == "" {
-		return fmt.Errorf("%w", ErrDBPasswordRequired)
-	}
-	if cfg.DBHost == "" {
-		return fmt.Errorf("%w", ErrDBHostRequired)
-	}
-	if cfg.DBName == "" {
-		return fmt.Errorf("%w", ErrDBNameRequired)
 	}
 
 	return nil
