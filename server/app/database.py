@@ -8,7 +8,6 @@ engine = create_engine(url=settings.DB_URL.unicode_string())
 
 
 def create_db_and_tables():
-    print(f"Tables in metadata: {list(SQLModel.metadata.tables.keys())}")
     SQLModel.metadata.create_all(engine)
 
 
